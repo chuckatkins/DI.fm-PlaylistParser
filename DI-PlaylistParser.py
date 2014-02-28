@@ -10,11 +10,11 @@ import io
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Extract DI.fm or SKY.fm playlists into differnt formats',
+        description='Extract DI.fm or SKY.fm playlists into different formats',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-u', '--url', default='http://listen.di.fm/premium',
                         help='URL containing all playlists')
-    parser.add_argument('-k', '--key', required=True, help='DI.fm API Key')
+    parser.add_argument('-k', '--key', required=True, help='Your premium Listen Key.  It can be found in "Player Settings"')
     parser.add_argument('-f', '--format', choices=['pls', 'exaile'],
                         default='pls', help='Output format')
     args = parser.parse_args()
