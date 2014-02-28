@@ -1,5 +1,5 @@
 #DI.fm-PlaylistParser
-
+```
 usage: DI-PlaylistParser.py [-h] [-u URL] -k KEY [-f {pls,exaile}]
 
 Extract DI.fm or SKY.fm playlists into differnt formats
@@ -12,11 +12,12 @@ optional arguments:
                         Settings" (default: None)
   -f {pls,exaile}, --format {pls,exaile}
                         Output format (default: pls)
-
+```
 
 #Usage Examples
 
 ## Downloading Digitally Imported playlists
+```
 [chuck@euclid tmp]$ python DI-PlaylistParser.py -k abc123def456abc123def456
 Retrieving JSON playlist info...
 Psybient
@@ -43,9 +44,10 @@ discohouse.pls          liquiddubstep.pls       vocallounge.pls
 djmixes.pls             lounge.pls              vocaltrance.pls
 downtempolounge.pls     mainstage.pls
 [chuck@euclid tmp]$ 
+```
 
 ## Downloading SKY.fm playlists
-
+```
 [chuck@euclid tmp]$ python DI-PlaylistParser.py -k abc123def456abc123def456 -u http://listen.sky.fm/premium
 Retrieving JSON playlist info...
 Smooth Jazz
@@ -72,3 +74,4 @@ dancehits.pls            pianojazz.pls           vocalsmoothjazz.pls
 datempolounge.pls        poppunk.pls             world.pls
 DI-PlaylistParser.py     poprock.pls
 [chuck@euclid tmp]$
+```
