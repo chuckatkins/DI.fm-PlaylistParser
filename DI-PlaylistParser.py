@@ -35,8 +35,8 @@ def get_url(args):
             args.quality = 128 if args.codec == 'aac' else 256
     else:
         if args.quality is None:
-            args.quality = {('di',  'aac'): 64,
-                            ('di',  'mp3'): 96,
+            args.quality = {('di', 'aac'): 64,
+                            ('di', 'mp3'): 96,
                             ('sky', 'aac'): 40,
                             ('sky', 'mp3'): 96}[(args.source, args.codec)]
         url_map = urls_free[args.source][args.codec]
@@ -47,7 +47,7 @@ def process_pls(channel, key):
     '''Parse the PLs playlist from a JSON channel object'''
     url = channel['playlist']
     if key:
-      url += '?%s'%key
+        url += '?%s' % key
     pls_raw = urllib2.urlopen(url).read()
     pls_config = ConfigParser.SafeConfigParser()
     pls_config.optionxform = str
