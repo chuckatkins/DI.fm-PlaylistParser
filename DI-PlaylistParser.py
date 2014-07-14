@@ -26,6 +26,13 @@ urls_free['di']['mp3'][96] = 'http://listen.di.fm/public3'
 urls_free['sky']['aac'][40] = 'http://listen.sky.fm/public1'
 urls_free['sky']['mp3'][96] = 'http://listen.sky.fm/public3'
 
+itunes_header_strings = [
+    "Name", "Artist", "Composer", "Album", "Grouping", "Genre", "Size", "Time",
+    "Disc Number", "Disc Count", "Track Number", "Track Count", "Year",
+    "Date Modified", "Date Added", "Bit Rate", "Sample Rate",
+    "Volume Adjustment", "Kind", "Equalizer", "Comments", "Plays",
+    "Last Played", "Skips", "Last Skipped", "My Rating", "Location"]
+
 
 def get_url(args):
     '''Determine the appropriate URL pull playlists from'''
@@ -59,17 +66,23 @@ def main():
     parser = argparse.ArgumentParser(
         description='Extract DI.fm or SKY.fm playlists into different formats')
     parser.add_argument('-s', '--source', default='di', choices=['di', 'sky'],
-                        help='Playlist source, DI.fm or SKY.fm.  Default: "di"')
+                        help='Playlist source, DI.fm or SKY.fm.  "\
+                        "Default: "di"')
     parser.add_argument('-c', '--codec', default='aac', choices=['mp3', 'aac'],
                         help='Audio codec.  Default: "aac"')
     parser.add_argument('-q', '--quality', choices=[40, 64, 128, 96, 256],
-                        type=int, help='Bitrate in kbps.  Default: highest possible given codec and free / premium constraints.')
+                        type=int, help='Bitrate in kbps.  Default: highest "\
+                        "possible given codec and free / premium constraints.')
     parser.add_argument('-k', '--key', help='Your premium Listen Key.')
-    parser.add_argument('-f', '--format', choices=['pls', 'exaile'],
+    parser.add_argument('-f', '--format', choices=['pls', 'exaile', 'itunes'],
                         default='pls',
                         help='Playlist file format.  Default: "pls"')
     parser.add_argument('-l', '--long', action='store_true',
-                        default=False, help='Use the full channel title for the filename instead of the short name, e.g. "Digitally Imported - Drum \'n Bass.pls" instad of "drumandbass.pls".  Only valid for "pls" format since "exaile" format always uses the long name.')
+                        default=False, help='Use the full channel title for "\
+                        "the filename instead of the short name, e.g. "\
+                        ""Digitally Imported - Drum \'n Bass.pls" instad of "\
+                        ""drumandbass.pls".  Only valid for "pls" format "\
+                        "since exaile" format always uses the long name.')
     args = parser.parse_args()
 
     url = get_url(args)
@@ -81,7 +94,8 @@ def main():
     print('')
 
     if not url:
-        print('Playlists not available for the specified source, codec, and quality.')
+        print('Playlists not available for the specified source, codec, and '
+              'quality.')
         return 1
 
     print('Retrieving JSON playlist info...')
@@ -121,6 +135,37 @@ def main():
             for name in all_stations:
                 fo.write('%s\n' % name)
             fo.write('EOF')
+
+    elif args.format == 'itunes':
+        # The playlist file *must* have these columns tab-delimited in the
+        # correct order
+        output = "%s\n" % "\t".join(itunes_header_strings)
+
+        # Add each channel to the output with 26 tabs between the name and
+        # location URL
+        for c in sorted(channels, key=lambda x: x['name']):
+            pls = process_pls(c, args.key)
+            title = pls.get('playlist', 'Title1')
+            url = pls.get('playlist', 'File1')
+            output += "%s%s%s\n" % (c['name'], "\t"*26, url)
+
+        # Write the filename depending on the source
+        if args.source == "di":
+            filename = "Digitally Imported.txt"
+        elif args.source == "sky":
+            filename = "SKY.FM.txt"
+        else:
+            filename = "Radio Playlist.txt"
+
+        # Write the iTunes playlist text file
+        # NOTE: SKY.FM has some peculiar unicode characters in some of their
+        # stream titles.
+        with open(filename, 'wb') as f:
+            f.write(output.encode('utf-8'))
+
+        print("In iTunes, go to File > Library > Import Playlist and choose "
+              "%s from this directory." % filename)
+
     return 0
 
 if __name__ == '__main__':
