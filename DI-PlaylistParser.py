@@ -6,25 +6,37 @@ import sys
 import argparse
 import ConfigParser
 import io
+import time
 
 # Mapping of premium URLs
-urls_prem = {'di': {'aac': {}, 'mp3': {}}, 'sky': {'aac': {}, 'mp3': {}}}
+urls_prem = {'di': {'aac': {}, 'mp3': {}},
+             'rt': {'aac': {}, 'mp3': {}},
+             'rr': {'aac': {}, 'mp3': {}},
+             'jr': {'aac': {}, 'mp3': {}}}
 urls_prem['di']['aac'][40] = 'http://listen.di.fm/premium_low'
 urls_prem['di']['aac'][64] = 'http://listen.di.fm/premium_medium'
 urls_prem['di']['aac'][128] = 'http://listen.di.fm/premium'
 urls_prem['di']['mp3'][256] = 'http://listen.di.fm/premium_high'
-urls_prem['sky']['aac'][40] = 'http://listen.sky.fm/premium_low'
-urls_prem['sky']['aac'][64] = 'http://listen.sky.fm/premium_medium'
-urls_prem['sky']['aac'][128] = 'http://listen.sky.fm/premium'
-urls_prem['sky']['mp3'][256] = 'http://listen.sky.fm/premium_high'
+urls_prem['rt']['aac'][40] = 'http://listen.radiotunes.com/premium_low'
+urls_prem['rt']['aac'][64] = 'http://listen.radiotunes.com/premium_medium'
+urls_prem['rt']['aac'][128] = 'http://listen.radiotunes.com/premium'
+urls_prem['rt']['mp3'][256] = 'http://listen.radiotunes.com/premium_high'
+urls_prem['rr']['aac'][40] = 'http://listen.rockradio.com/premium_low'
+urls_prem['rr']['aac'][64] = 'http://listen.rockradio.com/premium_medium'
+urls_prem['rr']['aac'][128] = 'http://listen.rockradio.com/premium'
+urls_prem['rr']['mp3'][256] = 'http://listen.rockradio.com/premium_high'
+urls_prem['jr']['aac'][40] = 'http://listen.jazzradio.com/premium_low'
+urls_prem['jr']['aac'][64] = 'http://listen.jazzradio.com/premium_medium'
+urls_prem['jr']['aac'][128] = 'http://listen.jazzradio.com/premium'
+urls_prem['jr']['mp3'][256] = 'http://listen.jazzradio.com/premium_high'
 
 # Mapping of free URLs
 urls_free = {'di': {'aac': {}, 'mp3': {}}, 'sky': {'aac': {}, 'mp3': {}}}
 urls_free['di']['aac'][40] = 'http://listen.di.fm/public2'
 urls_free['di']['aac'][64] = 'http://listen.di.fm/public1'
 urls_free['di']['mp3'][96] = 'http://listen.di.fm/public3'
-urls_free['sky']['aac'][40] = 'http://listen.sky.fm/public1'
-urls_free['sky']['mp3'][96] = 'http://listen.sky.fm/public3'
+urls_free['sky']['aac'][40] = 'http://listen.radiotunes.com/public1'
+urls_free['sky']['mp3'][96] = 'http://listen.radiotunes.com/public3'
 
 itunes_header_strings = [
     "Name", "Artist", "Composer", "Album", "Grouping", "Genre", "Size", "Time",
@@ -52,6 +64,7 @@ def get_url(args):
 
 def process_pls(channel, key):
     '''Parse the PLs playlist from a JSON channel object'''
+    time.sleep(0.25)
     url = channel['playlist']
     if key:
         url += '?%s' % key
@@ -65,28 +78,29 @@ def process_pls(channel, key):
 def main():
     parser = argparse.ArgumentParser(
         description='Extract DI.fm or SKY.fm playlists into different formats')
-    parser.add_argument('-s', '--source', default='di', choices=['di', 'sky'],
-                        help='Playlist source, DI.fm or SKY.fm.  "\
-                        "Default: "di"')
+    parser.add_argument('-s', '--source', default='di',
+                        choices=['di', 'rt', 'rr', 'jr'],
+                        help='Playlist source, DigitallyImported, RadioTunes '\
+                        'RockRadio, and JazzRadio.  Default: "di"')
     parser.add_argument('-c', '--codec', default='aac', choices=['mp3', 'aac'],
                         help='Audio codec.  Default: "aac"')
     parser.add_argument('-q', '--quality', choices=[40, 64, 128, 96, 256],
-                        type=int, help='Bitrate in kbps.  Default: highest "\
-                        "possible given codec and free / premium constraints.')
+                        type=int, help='Bitrate in kbps.  Default: highest '\
+                        'possible given codec and free / premium constraints.')
     parser.add_argument('-k', '--key', help='Your premium Listen Key.')
     parser.add_argument('-f', '--format', choices=['pls', 'exaile', 'itunes'],
                         default='pls',
                         help='Playlist file format.  Default: "pls"')
     parser.add_argument('-l', '--long', action='store_true',
-                        default=False, help='Use the full channel title for "\
-                        "the filename instead of the short name, e.g. "\
-                        ""Digitally Imported - Drum \'n Bass.pls" instad of "\
-                        ""drumandbass.pls".  Only valid for "pls" format "\
-                        "since exaile" format always uses the long name.')
+                        default=False, help='Use the full channel title for '\
+                        'the filename instead of the short name, e.g. '\
+                        '"Digitally Imported - Drum \'n Bass.pls" instead of '\
+                        '"drumandbass.pls".  Only valid for "pls" format '\
+                        'since "exaile" format always uses the long name.')
     args = parser.parse_args()
 
     url = get_url(args)
-    print('Source  : %s.fm' % args.source.swapcase())
+    print('Source  : %s' % args.source.swapcase())
     print('Codec   : %s' % args.codec.swapcase())
     print('Bitrate : %dkbps' % args.quality)
     print('Key     : %s' % args.key)
